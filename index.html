@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sithafal Dashboard - Advanced Analytics</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+</head>
+<body>
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Loading Dashboard...</p>
+    </div>
+
+    <div class="dashboard-container">
+        <!-- Enhanced Sidebar -->
+        <aside class="sidebar">
+            <div class="logo-container">
+                <img src="https://cdn.prod.website-files.com/669a55be953bf5aa9e39fee0/669a61c3903afa730c741a0d_Group%2037682.png" 
+                     alt="Sithafal" class="logo" loading="lazy">
+                <!-- <span class="logo-text">Sithafal</span> -->
+            </div>
+            
+            <nav class="nav-menu">
+                <div class="nav-item active" data-page="dashboard">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                    <div class="nav-indicator"></div>
+                </div>
+                <div class="nav-item" data-page="quarantine">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Quarantine</span>
+                    <div class="nav-badge">3</div>
+                </div>
+                <div class="nav-item" data-page="analytics">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Analytics</span>
+                    <div class="nav-indicator"></div>
+                </div>
+                <div class="nav-item" data-page="threat-intel">
+                    <i class="fas fa-brain"></i>
+                    <span>Threat Intelligence</span>
+                    <div class="nav-badge">New</div>
+                </div>
+                <div class="nav-item" data-page="reports">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Reports</span>
+                </div>
+                <div class="nav-item" data-page="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </div>
+            </nav>
+            
+            <div class="user-profile">
+                <div class="profile-avatar">
+                    <div class="avatar-placeholder">MK</div>
+                    <!-- <div class="status-indicator online"></div> -->
+                </div>
+                <div class="profile-info">
+                    <span class="profile-name">Michael Krist</span>
+                    <span class="profile-role">Security Admin</span>
+                </div>
+                <div class="notification-dropdown">
+                    <div class="notification-badge">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge pulse">3</span>
+                    </div>
+                    <div class="dropdown-menu">
+                        <div class="dropdown-header">Notifications</div>
+                        <div class="notification-item">
+                            <i class="fas fa-exclamation-triangle text-danger"></i>
+                            <span>High risk threat detected</span>
+                        </div>
+                        <div class="notification-item">
+                            <i class="fas fa-info-circle text-info"></i>
+                            <span>System update available</span>
+                        </div>
+                        <div class="notification-item">
+                            <i class="fas fa-check-circle text-success"></i>
+                            <span>Scan completed successfully</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Enhanced Main Dashboard Content -->
+        <main class="main-content page-content active">
+            <!-- Header with Search and Actions -->
+            <header class="dashboard-header">
+                <div class="header-left">
+                    <h1>Security Dashboard</h1>
+                    <p class="header-subtitle">Real-time threat monitoring and analytics</p>
+                </div>
+                <div class="header-right">
+                    <div class="search-container">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search threats, emails..." class="search-input">
+                    </div>
+                    <button class="export-btn">
+                        <i class="fas fa-download"></i>
+                        Export Report
+                    </button>
+                    <div class="date-range-picker">
+                        <i class="fas fa-calendar"></i>
+                        <span>Last 24 Hours</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Enhanced Stats Cards -->
+            <section class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card animated" data-animation="slideInUp">
+                        <div class="stat-header">
+                            <div class="stat-info">
+                                <span class="stat-title">Total Emails</span>
+                                <span class="stat-subtitle">Last 24 hours</span>
+                            </div>
+                            <div class="stat-icon email-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value" data-target="40">0</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>45% from last week</span>
+                        </div>
+                        <div class="stat-chart">
+                            <canvas id="emailTrendChart" width="100" height="40"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="stat-card animated" data-animation="slideInUp" data-delay="100">
+                        <div class="stat-header">
+                            <div class="stat-info">
+                                <span class="stat-title">Quarantine</span>
+                                <span class="stat-subtitle">Threats blocked</span>
+                            </div>
+                            <div class="stat-icon quarantine-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value" data-target="10">0</div>
+                        <div class="stat-change negative">
+                            <i class="fas fa-arrow-down"></i>
+                            <span>10% from last week</span>
+                        </div>
+                        <div class="stat-chart">
+                            <canvas id="quarantineTrendChart" width="100" height="40"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="stat-card animated" data-animation="slideInUp" data-delay="200">
+                        <div class="stat-header">
+                            <div class="stat-info">
+                                <span class="stat-title">Cleaned Emails</span>
+                                <span class="stat-subtitle">Successfully processed</span>
+                            </div>
+                            <div class="stat-icon cleaned-icon">
+                                <i class="fas fa-check"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value" data-target="30">0</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>45% from last week</span>
+                        </div>
+                        <div class="stat-chart">
+                            <canvas id="cleanedTrendChart" width="100" height="40"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="stat-card animated" data-animation="slideInUp" data-delay="300">
+                        <div class="stat-header">
+                            <div class="stat-info">
+                                <span class="stat-title">Users Protected</span>
+                                <span class="stat-subtitle">Active monitoring</span>
+                            </div>
+                            <div class="stat-icon users-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value" data-target="30">0</div>
+                        <div class="stat-change neutral">
+                            <i class="fas fa-minus"></i>
+                            <span>No change</span>
+                        </div>
+                        <div class="stat-chart">
+                            <canvas id="usersTrendChart" width="100" height="40"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Enhanced Charts Section -->
+            <section class="charts-section">
+                <div class="charts-grid">
+                    <!-- Quarantine Response -->
+                    <div class="chart-card quarantine-card animated" data-animation="fadeInLeft">
+                        <div class="chart-header">
+                            <h3>Quarantine Response</h3>
+                            <div class="chart-actions">
+                                <button class="chart-action" title="Refresh">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                                <button class="chart-action" title="Export">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="response-bars">
+                            <div class="response-item">
+                                <span class="response-label">Malware Detection</span>
+                                <div class="response-bar">
+                                    <div class="bar-fill malware-bar" data-width="100" data-value="10"></div>
+                                </div>
+                                <span class="response-value">10</span>
+                            </div>
+                            <div class="response-item">
+                                <span class="response-label">Phishing Attempts</span>
+                                <div class="response-bar">
+                                    <div class="bar-fill phishing-bar" data-width="80" data-value="8"></div>
+                                </div>
+                                <span class="response-value">08</span>
+                            </div>
+                            <div class="response-item">
+                                <span class="response-label">Spam Filtering</span>
+                                <div class="response-bar">
+                                    <div class="bar-fill spam-bar" data-width="40" data-value="4"></div>
+                                </div>
+                                <span class="response-value">04</span>
+                            </div>
+                            <div class="response-item">
+                                <span class="response-label">Suspicious Links</span>
+                                <div class="response-bar">
+                                    <div class="bar-fill suspicious-bar" data-width="60" data-value="6"></div>
+                                </div>
+                                <span class="response-value">06</span>
+                            </div>
+                            <div class="response-item">
+                                <span class="response-label">Data Exfiltration</span>
+                                <div class="response-bar">
+                                    <div class="bar-fill exfiltration-bar" data-width="70" data-value="7"></div>
+                                </div>
+                                <span class="response-value">07</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Enhanced Threat Breakdown -->
+                    <div class="chart-card threat-card animated" data-animation="fadeInUp">
+                        <div class="chart-header">
+                            <h3>Threat Breakdown</h3>
+                            <div class="chart-actions">
+                                <button class="chart-action active" data-period="today">Today</button>
+                                <button class="chart-action" data-period="week">Week</button>
+                                <button class="chart-action" data-period="month">Month</button>
+                            </div>
+                        </div>
+                        <div class="threat-chart-container">
+                            <div class="pie-chart-wrapper">
+                                <canvas id="threatChart" width="240" height="240"></canvas>
+                                <div class="chart-center-label">
+                                    <div class="center-value">75</div>
+                                    <div class="center-label">Total Threats</div>
+                                </div>
+                            </div>
+                            <div class="threat-legend">
+                                <div class="legend-item" data-type="malicious">
+                                    <span class="legend-dot malicious"></span>
+                                    <div class="legend-content">
+                                        <span class="legend-label">Malicious</span>
+                                        <span class="legend-value">30%</span>
+                                    </div>
+                                </div>
+                                <div class="legend-item" data-type="phishing">
+                                    <span class="legend-dot phishing"></span>
+                                    <div class="legend-content">
+                                        <span class="legend-label">Phishing</span>
+                                        <span class="legend-value">25%</span>
+                                    </div>
+                                </div>
+                                <div class="legend-item" data-type="suspicious">
+                                    <span class="legend-dot suspicious"></span>
+                                    <div class="legend-content">
+                                        <span class="legend-label">Suspicious</span>
+                                        <span class="legend-value">20%</span>
+                                    </div>
+                                </div>
+                                <div class="legend-item" data-type="detected">
+                                    <span class="legend-dot detected"></span>
+                                    <div class="legend-content">
+                                        <span class="legend-label">Detected</span>
+                                        <span class="legend-value">15%</span>
+                                    </div>
+                                </div>
+                                <div class="legend-item" data-type="malware">
+                                    <span class="legend-dot malware"></span>
+                                    <div class="legend-content">
+                                        <span class="legend-label">Malware</span>
+                                        <span class="legend-value">10%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Enhanced Recent Activities -->
+                    <div class="chart-card activities-card animated" data-animation="fadeInRight">
+                        <div class="activities-header">
+                            <h3>Recent Activities</h3>
+                            <div class="activity-filters">
+                                <button class="filter-btn active" data-filter="all">All</button>
+                                <button class="filter-btn" data-filter="high">High</button>
+                                <button class="filter-btn" data-filter="medium">Medium</button>
+                            </div>
+                            <a href="#" class="view-all">View All</a>
+                        </div>
+                        <div class="activity-list">
+                            <div class="activity-item high-risk" data-risk="high">
+                                <div class="activity-icon">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-header">
+                                        <div class="activity-title">High Risk</div>
+                                        <div class="activity-time">2 min ago</div>
+                                    </div>
+                                    <div class="activity-desc">Spam Detected from john.doe@gmail.com</div>
+                                    <div class="activity-subdesc">Unusual login activity detected from your account. Please verify and change password</div>
+                                    <div class="activity-actions">
+                                        <button class="action-btn primary">Investigate</button>
+                                        <button class="action-btn secondary">Dismiss</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="activity-item medium-risk" data-risk="medium">
+                                <div class="activity-icon">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-header">
+                                        <div class="activity-title">Medium</div>
+                                        <div class="activity-time">5 min ago</div>
+                                    </div>
+                                    <div class="activity-desc">Spam Detected from jane.smith@outlook.com</div>
+                                    <div class="activity-subdesc">Change your Teams account password.</div>
+                                    <div class="activity-actions">
+                                        <button class="action-btn primary">Review</button>
+                                        <button class="action-btn secondary">Archive</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="activity-item low-risk" data-risk="low">
+                                <div class="activity-icon">
+                                    <i class="fas fa-info-circle"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-header">
+                                        <div class="activity-title">Low Risk</div>
+                                        <div class="activity-time">10 min ago</div>
+                                    </div>
+                                    <div class="activity-desc">Routine scan completed</div>
+                                    <div class="activity-subdesc">No threats detected in latest scan cycle</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Enhanced Email Traffic Overview -->
+            <section class="traffic-section">
+                <div class="chart-card traffic-card animated" data-animation="fadeInUp">
+                    <div class="traffic-header">
+                        <div class="header-left">
+                            <h3>Email Traffic Overview</h3>
+                            <p class="chart-subtitle">Real-time email monitoring and analysis</p>
+                        </div>
+                        <div class="header-right">
+                            <div class="traffic-stats">
+                                <div class="traffic-stat">
+                                    <span class="stat-label">Peak Hour</span>
+                                    <span class="stat-value">13:00</span>
+                                </div>
+                                <div class="traffic-stat">
+                                    <span class="stat-label">Avg/Hour</span>
+                                    <span class="stat-value">25</span>
+                                </div>
+                            </div>
+                            <select class="time-selector">
+                                <option value="24h">24 Hours</option>
+                                <option value="7d">7 Days</option>
+                                <option value="30d">30 Days</option>
+                                <option value="90d">90 Days</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="traffic-chart-wrapper">
+                        <canvas id="trafficChart"></canvas>
+                    </div>
+                    <div class="traffic-insights">
+                        <div class="insight-item">
+                            <i class="fas fa-trending-up text-success"></i>
+                            <span>Traffic increased by 15% compared to yesterday</span>
+                        </div>
+                        <div class="insight-item">
+                            <i class="fas fa-shield-alt text-warning"></i>
+                            <span>3 suspicious emails detected during peak hours</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Optimized Advanced Analytics Section -->
+            <section class="analytics-section">
+                <div class="analytics-grid">
+                    <!-- Replace Security Score with Threat Detection Timeline -->
+                    <div class="chart-card threat-timeline-card">
+                        <div class="chart-header">
+                            <div class="header-left">
+                                <h3>Threat Detection Timeline</h3>
+                                <p class="chart-subtitle">Real-time threat monitoring</p>
+                            </div>
+                            <div class="header-right">
+                                <!-- <div class="status-indicator">
+                                    <span class="status-dot active"></span>
+                                    <span class="status-text">Live Monitoring</span>
+                                </div> -->
+                            </div>
+                        </div>
+                        <div class="timeline-container">
+                            <div class="timeline-item">
+                                <div class="timeline-time">13:45</div>
+                                <div class="timeline-content">
+                                    <div class="timeline-icon high-severity">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                    </div>
+                                    <div class="timeline-details">
+                                        <div class="timeline-title">Malware Detected</div>
+                                        <div class="timeline-desc">Suspicious executable blocked from email attachment</div>
+                                    </div>
+                                    <div class="timeline-status">
+                                        <span class="status-badge blocked">Blocked</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-time">13:32</div>
+                                <div class="timeline-content">
+                                    <div class="timeline-icon medium-severity">
+                                        <i class="fas fa-shield-alt"></i>
+                                    </div>
+                                    <div class="timeline-details">
+                                        <div class="timeline-title">Phishing Attempt</div>
+                                        <div class="timeline-desc">Suspicious link in email from unknown sender</div>
+                                    </div>
+                                    <div class="timeline-status">
+                                        <span class="status-badge quarantined">Quarantined</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-time">13:18</div>
+                                <div class="timeline-content">
+                                    <div class="timeline-icon low-severity">
+                                        <i class="fas fa-info-circle"></i>
+                                    </div>
+                                    <div class="timeline-details">
+                                        <div class="timeline-title">Spam Filtered</div>
+                                        <div class="timeline-desc">Bulk marketing email automatically filtered</div>
+                                    </div>
+                                    <div class="timeline-status">
+                                        <span class="status-badge filtered">Filtered</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-time">13:05</div>
+                                <div class="timeline-content">
+                                    <div class="timeline-icon success">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <div class="timeline-details">
+                                        <div class="timeline-title">Clean Email Delivered</div>
+                                        <div class="timeline-desc">Email passed all security checks successfully</div>
+                                    </div>
+                                    <div class="timeline-status">
+                                        <span class="status-badge delivered">Delivered</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="timeline-summary">
+                            <div class="summary-item">
+                                <span class="summary-number">18</span>
+                                <span class="summary-label">Threats Blocked Today</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-number">99.7%</span>
+                                <span class="summary-label">Detection Rate</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Fixed Geographic Threat Distribution -->
+                    <div class="chart-card geo-threats-card">
+                        <div class="chart-header">
+                            <h3>Geographic Threats</h3>
+                            <div class="header-stats">
+                                <div class="stat-item">
+                                    <span class="stat-number">26</span>
+                                    <span class="stat-label">Total</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-number">7</span>
+                                    <span class="stat-label">Countries</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="geo-threats-list">
+                            <div class="threat-country">
+                                <div class="country-info">
+                                    <span class="country-flag">🇺🇸</span>
+                                    <div class="country-text">
+                                        <span class="country-name">United States</span>
+                                        <span class="threat-type">Phishing, Malware</span>
+                                    </div>
+                                </div>
+                                <div class="country-stats">
+                                    <div class="threat-progress">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 46%" data-width="46"></div>
+                                        </div>
+                                        <span class="progress-text">46%</span>
+                                    </div>
+                                    <span class="threat-count">12</span>
+                                </div>
+                            </div>
+                            
+                            <div class="threat-country">
+                                <div class="country-info">
+                                    <span class="country-flag">🇨🇳</span>
+                                    <div class="country-text">
+                                        <span class="country-name">China</span>
+                                        <span class="threat-type">Malware, Spam</span>
+                                    </div>
+                                </div>
+                                <div class="country-stats">
+                                    <div class="threat-progress">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 31%" data-width="31"></div>
+                                        </div>
+                                        <span class="progress-text">31%</span>
+                                    </div>
+                                    <span class="threat-count">8</span>
+                                </div>
+                            </div>
+                            
+                            <div class="threat-country">
+                                <div class="country-info">
+                                    <span class="country-flag">🇷🇺</span>
+                                    <div class="country-text">
+                                        <span class="country-name">Russia</span>
+                                        <span class="threat-type">Phishing</span>
+                                    </div>
+                                </div>
+                                <div class="country-stats">
+                                    <div class="threat-progress">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 23%" data-width="23"></div>
+                                        </div>
+                                        <span class="progress-text">23%</span>
+                                    </div>
+                                    <span class="threat-count">6</span>
+                                </div>
+                            </div>
+                            
+                            <div class="threat-country collapsed-item">
+                                <div class="country-info">
+                                    <span class="country-flag">🇩🇪</span>
+                                    <div class="country-text">
+                                        <span class="country-name">Germany</span>
+                                        <span class="threat-type">Spam</span>
+                                    </div>
+                                </div>
+                                <div class="country-stats">
+                                    <div class="threat-progress">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 15%" data-width="15"></div>
+                                        </div>
+                                        <span class="progress-text">15%</span>
+                                    </div>
+                                    <span class="threat-count">4</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="geo-actions">
+                            <button class="expand-btn">
+                                <i class="fas fa-chevron-down"></i>
+                                <span>Show 3 more</span>
+                            </button>
+                            <button class="map-view-btn">
+                                <i class="fas fa-globe"></i>
+                                <span>Map View</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Quarantine Page Content (Hidden by default) -->
+        <main class="quarantine-content page-content" id="quarantinePage" style="display: none;">
+            <!-- Quarantine Header -->
+            <header class="quarantine-header">
+                <div class="header-left">
+                    <h1>Email Quarantine</h1>
+                    <p class="header-subtitle">Manage and review quarantined emails</p>
+                </div>
+                <div class="header-right">
+                    <div class="quarantine-stats">
+                        <div class="quick-stat">
+                            <span class="stat-number">10</span>
+                            <span class="stat-label">Total</span>
+                        </div>
+                        <div class="quick-stat">
+                            <span class="stat-number">3</span>
+                            <span class="stat-label">High Risk</span>
+                        </div>
+                        <div class="quick-stat">
+                            <span class="stat-number">7</span>    
+                            <span class="stat-label">Medium Risk</span>
+                        </div>
+                    </div>
+                    <div class="quarantine-actions">
+                        <button class="action-btn bulk-release">
+                            <i class="fas fa-unlock"></i>
+                            Bulk Release
+                        </button>
+                        <button class="action-btn bulk-delete">
+                            <i class="fas fa-trash"></i>
+                            Bulk Delete
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Quarantine Filters -->
+            <section class="quarantine-filters">
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-filter="all">
+                        All <span class="tab-count">(10)</span>
+                    </button>
+                    <button class="filter-tab" data-filter="high">
+                        High Risk <span class="tab-count">(3)</span>
+                    </button>
+                    <button class="filter-tab" data-filter="medium">
+                        Medium Risk <span class="tab-count">(7)</span>
+                    </button>
+                    <button class="filter-tab" data-filter="released">
+                        Released <span class="tab-count">(0)</span>
+                    </button>
+                </div>
+                <div class="filter-controls">
+                    <div class="search-container">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search emails..." class="search-input">
+                    </div>
+                    <select class="date-filter">
+                        <option>Today</option>
+                        <option>Last 7 Days</option>
+                        <option>Last 30 Days</option>
+                        <option>All Time</option>
+                    </select>
+                </div>
+            </section>
+
+            <!-- Quarantine Email List -->
+            <section class="quarantine-list-section">
+                <div class="quarantine-table-container">
+                    <table class="quarantine-table">
+                        <thead>
+                            <tr>
+                                <th class="select-column">
+                                    <input type="checkbox" id="selectAll" class="select-all-checkbox">
+                                </th>
+                                <th class="sender-column">Sender</th>
+                                <th class="subject-column">Subject</th>
+                                <th class="date-column">Date Received</th>
+                                <th class="risk-column">Risk Level</th>
+                                <th class="reason-column">Quarantine Reason</th>
+                                <th class="actions-column">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="quarantine-tbody">
+                            <!-- High Risk Emails -->
+                            <tr class="quarantine-row high-risk" data-risk="high">
+                                <td class="select-cell">
+                                    <input type="checkbox" class="row-checkbox">
+                                </td>
+                                <td class="sender-cell">
+                                    <div class="sender-info">
+                                        <div class="sender-avatar">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div class="sender-details">
+                                            <div class="sender-name">john.doe@suspicious-domain.com</div>
+                                            <div class="sender-domain">suspicious-domain.com</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="subject-cell">
+                                    <div class="subject-content">
+                                        <div class="subject-text">Urgent: Account Verification Required</div>
+                                        <div class="subject-preview">Please click the link below to verify your account immediately...</div>
+                                    </div>
+                                </td>
+                                <td class="date-cell">
+                                    <div class="date-info">
+                                        <div class="date-main">Aug 14, 2025</div>
+                                        <div class="date-time">1:45 PM</div>
+                                    </div>
+                                </td>
+                                <td class="risk-cell">
+                                    <span class="risk-badge high-risk-badge">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        High Risk
+                                    </span>
+                                </td>
+                                <td class="reason-cell">
+                                    <div class="reason-info">
+                                        <div class="reason-main">Phishing Attempt</div>
+                                        <div class="reason-details">Suspicious links detected</div>
+                                    </div>
+                                </td>
+                                <td class="actions-cell">
+                                    <div class="action-buttons">
+                                        <button class="action-btn-small preview-btn" title="Preview">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="action-btn-small release-btn" title="Release">
+                                            <i class="fas fa-unlock"></i>
+                                        </button>
+                                        <button class="action-btn-small delete-btn" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr class="quarantine-row high-risk" data-risk="high">
+                                <td class="select-cell">
+                                    <input type="checkbox" class="row-checkbox">
+                                </td>
+                                <td class="sender-cell">
+                                    <div class="sender-info">
+                                        <div class="sender-avatar">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div class="sender-details">
+                                            <div class="sender-name">malware@infected-site.net</div>
+                                            <div class="sender-domain">infected-site.net</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="subject-cell">
+                                    <div class="subject-content">
+                                        <div class="subject-text">Invoice #2024-0814 - Action Required</div>
+                                        <div class="subject-preview">Please download and open the attached invoice for immediate processing...</div>
+                                    </div>
+                                </td>
+                                <td class="date-cell">
+                                    <div class="date-info">
+                                        <div class="date-main">Aug 14, 2025</div>
+                                        <div class="date-time">12:30 PM</div>
+                                    </div>
+                                </td>
+                                <td class="risk-cell">
+                                    <span class="risk-badge high-risk-badge">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        High Risk
+                                    </span>
+                                </td>
+                                <td class="reason-cell">
+                                    <div class="reason-info">
+                                        <div class="reason-main">Malware Detected</div>
+                                        <div class="reason-details">Malicious attachment found</div>
+                                    </div>
+                                </td>
+                                <td class="actions-cell">
+                                    <div class="action-buttons">
+                                        <button class="action-btn-small preview-btn" title="Preview">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="action-btn-small release-btn" title="Release">
+                                            <i class="fas fa-unlock"></i>
+                                        </button>
+                                        <button class="action-btn-small delete-btn" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Medium Risk Emails -->
+                            <tr class="quarantine-row medium-risk" data-risk="medium">
+                                <td class="select-cell">
+                                    <input type="checkbox" class="row-checkbox">
+                                </td>
+                                <td class="sender-cell">
+                                    <div class="sender-info">
+                                        <div class="sender-avatar">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div class="sender-details">
+                                            <div class="sender-name">noreply@marketing-blast.com</div>
+                                            <div class="sender-domain">marketing-blast.com</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="subject-cell">
+                                    <div class="subject-content">
+                                        <div class="subject-text">Limited Time Offer - 90% OFF Everything!</div>
+                                        <div class="subject-preview">Don't miss out on this incredible deal. Shop now and save big...</div>
+                                    </div>
+                                </td>
+                                <td class="date-cell">
+                                    <div class="date-info">
+                                        <div class="date-main">Aug 14, 2025</div>
+                                        <div class="date-time">11:15 AM</div>
+                                    </div>
+                                </td>
+                                <td class="risk-cell">
+                                    <span class="risk-badge medium-risk-badge">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        Medium Risk
+                                    </span>
+                                </td>
+                                <td class="reason-cell">
+                                    <div class="reason-info">
+                                        <div class="reason-main">Spam Content</div>
+                                        <div class="reason-details">Bulk marketing email</div>
+                                    </div>
+                                </td>
+                                <td class="actions-cell">
+                                    <div class="action-buttons">
+                                        <button class="action-btn-small preview-btn" title="Preview">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="action-btn-small release-btn" title="Release">
+                                            <i class="fas fa-unlock"></i>
+                                        </button>
+                                        <button class="action-btn-small delete-btn" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Add more medium risk emails -->
+                            <tr class="quarantine-row medium-risk" data-risk="medium">
+                                <td class="select-cell">
+                                    <input type="checkbox" class="row-checkbox">
+                                </td>
+                                <td class="sender-cell">
+                                    <div class="sender-info">
+                                        <div class="sender-avatar">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div class="sender-details">
+                                            <div class="sender-name">offers@deals-today.org</div>
+                                            <div class="sender-domain">deals-today.org</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="subject-cell">
+                                    <div class="subject-content">
+                                        <div class="subject-text">You've Won $1,000,000! Claim Now</div>
+                                        <div class="subject-preview">Congratulations! You are our lucky winner. Click here to claim your prize...</div>
+                                    </div>
+                                </td>
+                                <td class="date-cell">
+                                    <div class="date-info">
+                                        <div class="date-main">Aug 14, 2025</div>
+                                        <div class="date-time">10:22 AM</div>
+                                    </div>
+                                </td>
+                                <td class="risk-cell">
+                                    <span class="risk-badge medium-risk-badge">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        Medium Risk
+                                    </span>
+                                </td>
+                                <td class="reason-cell">
+                                    <div class="reason-info">
+                                        <div class="reason-main">Suspicious Content</div>
+                                        <div class="reason-details">Lottery scam indicators</div>
+                                    </div>
+                                </td>
+                                <td class="actions-cell">
+                                    <div class="action-buttons">
+                                        <button class="action-btn-small preview-btn" title="Preview">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="action-btn-small release-btn" title="Release">
+                                            <i class="fas fa-unlock"></i>
+                                        </button>
+                                        <button class="action-btn-small delete-btn" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            
+                            <!-- Add 4 more medium risk emails for a total of 6 -->
+                            <tr class="quarantine-row medium-risk" data-risk="medium">
+                                <td class="select-cell">
+                                    <input type="checkbox" class="row-checkbox">
+                                </td>
+                                <td class="sender-cell">
+                                    <div class="sender-info">
+                                        <div class="sender-avatar">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div class="sender-details">
+                                            <div class="sender-name">promo@discount-zone.biz</div>
+                                            <div class="sender-domain">discount-zone.biz</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="subject-cell">
+                                    <div class="subject-content">
+                                        <div class="subject-text">FINAL NOTICE: 75% Discount Expires Today</div>
+                                        <div class="subject-preview">This is your last chance to save huge on all items. Don't wait...</div>
+                                    </div>
+                                </td>
+                                <td class="date-cell">
+                                    <div class="date-info">
+                                        <div class="date-main">Aug 14, 2025</div>
+                                        <div class="date-time">9:45 AM</div>
+                                    </div>
+                                </td>
+                                <td class="risk-cell">
+                                    <span class="risk-badge medium-risk-badge">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        Medium Risk
+                                    </span>
+                                </td>
+                                <td class="reason-cell">
+                                    <div class="reason-info">
+                                        <div class="reason-main">Bulk Email</div>
+                                        <div class="reason-details">Mass marketing campaign</div>
+                                    </div>
+                                </td>
+                                <td class="actions-cell">
+                                    <div class="action-buttons">
+                                        <button class="action-btn-small preview-btn" title="Preview">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="action-btn-small release-btn" title="Release">
+                                            <i class="fas fa-unlock"></i>
+                                        </button>
+                                        <button class="action-btn-small delete-btn" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr class="quarantine-row medium-risk" data-risk="medium">
+                                <td class="select-cell">
+                                    <input type="checkbox" class="row-checkbox">
+                                </td>
+                                <td class="sender-cell">
+                                    <div class="sender-info">
+                                        <div class="sender-avatar">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div class="sender-details">
+                                            <div class="sender-name">survey@feedback-rewards.com</div>
+                                            <div class="sender-domain">feedback-rewards.com</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="subject-cell">
+                                    <div class="subject-content">
+                                        <div class="subject-text">Quick Survey = $50 Gift Card</div>
+                                        <div class="subject-preview">Complete our 2-minute survey and receive a $50 gift card instantly...</div>
+                                    </div>
+                                </td>
+                                <td class="date-cell">
+                                    <div class="date-info">
+                                        <div class="date-main">Aug 14, 2025</div>
+                                        <div class="date-time">9:12 AM</div>
+                                    </div>
+                                </td>
+                                <td class="risk-cell">
+                                    <span class="risk-badge medium-risk-badge">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        Medium Risk
+                                    </span>
+                                </td>
+                                <td class="reason-cell">
+                                    <div class="reason-info">
+                                        <div class="reason-main">Suspicious Offer</div>
+                                        <div class="reason-details">Too good to be true</div>
+                                    </div>
+                                </td>
+                                <td class="actions-cell">
+                                    <div class="action-buttons">
+                                        <button class="action-btn-small preview-btn" title="Preview">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="action-btn-small release-btn" title="Release">
+                                            <i class="fas fa-unlock"></i>
+                                        </button>
+                                        <button class="action-btn-small delete-btn" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr class="quarantine-row medium-risk" data-risk="medium">
+                                <td class="select-cell">
+                                    <input type="checkbox" class="row-checkbox">
+                                </td>
+                                <td class="sender-cell">
+                                    <div class="sender-info">
+                                        <div class="sender-avatar">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div class="sender-details">
+                                            <div class="sender-name">alerts@crypto-trading.info</div>
+                                            <div class="sender-domain">crypto-trading.info</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="subject-cell">
+                                    <div class="subject-content">
+                                        <div class="subject-text">🚀 Bitcoin Investment Alert - 300% Returns</div>
+                                        <div class="subject-preview">Exclusive crypto investment opportunity. Get 300% returns in 30 days guaranteed...</div>
+                                    </div>
+                                </td>
+                                <td class="date-cell">
+                                    <div class="date-info">
+                                        <div class="date-main">Aug 14, 2025</div>
+                                        <div class="date-time">8:33 AM</div>
+                                    </div>
+                                </td>
+                                <td class="risk-cell">
+                                    <span class="risk-badge medium-risk-badge">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        Medium Risk
+                                    </span>
+                                </td>
+                                <td class="reason-cell">
+                                    <div class="reason-info">
+                                        <div class="reason-main">Investment Scam</div>
+                                        <div class="reason-details">Unrealistic promises</div>
+                                    </div>
+                                </td>
+                                <td class="actions-cell">
+                                    <div class="action-buttons">
+                                        <button class="action-btn-small preview-btn" title="Preview">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="action-btn-small release-btn" title="Release">
+                                            <i class="fas fa-unlock"></i>
+                                        </button>
+                                        <button class="action-btn-small delete-btn" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr class="quarantine-row medium-risk" data-risk="medium">
+                                <td class="select-cell">
+                                    <input type="checkbox" class="row-checkbox">
+                                </td>
+                                <td class="sender-cell">
+                                    <div class="sender-info">
+                                        <div class="sender-avatar">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div class="sender-details">
+                                            <div class="sender-name">notification@pay-pal-security.org</div>
+                                            <div class="sender-domain">pay-pal-security.org</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="subject-cell">
+                                    <div class="subject-content">
+                                        <div class="subject-text">PayPal Account Suspended - Verify Now</div>
+                                        <div class="subject-preview">Your PayPal account has been suspended due to suspicious activity. Click to verify...</div>
+                                    </div>
+                                </td>
+                                <td class="date-cell">
+                                    <div class="date-info">
+                                        <div class="date-main">Aug 14, 2025</div>
+                                        <div class="date-time">8:07 AM</div>
+                                    </div>
+                                </td>
+                                <td class="risk-cell">
+                                    <span class="risk-badge medium-risk-badge">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        Medium Risk
+                                    </span>
+                                </td>
+                                <td class="reason-cell">
+                                    <div class="reason-info">
+                                        <div class="reason-main">Domain Spoofing</div>
+                                        <div class="reason-details">Fake PayPal domain</div>
+                                    </div>
+                                </td>
+                                <td class="actions-cell">
+                                    <div class="action-buttons">
+                                        <button class="action-btn-small preview-btn" title="Preview">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="action-btn-small release-btn" title="Release">
+                                            <i class="fas fa-unlock"></i>
+                                        </button>
+                                        <button class="action-btn-small delete-btn" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Email Preview Modal (Hidden by default) -->
+            <div class="email-preview-modal" id="emailPreviewModal" style="display: none;">
+                <div class="modal-overlay"></div>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Email Preview</h3>
+                        <button class="modal-close" onclick="closeEmailPreview()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="email-details">
+                            <div class="detail-row">
+                                <span class="detail-label">From:</span>
+                                <span class="detail-value" id="previewSender">john.doe@suspicious-domain.com</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Subject:</span>
+                                <span class="detail-value" id="previewSubject">Urgent: Account Verification Required</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Date:</span>
+                                <span class="detail-value" id="previewDate">Aug 14, 2025 1:45 PM</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Risk Level:</span>
+                                <span class="detail-value" id="previewRisk">High Risk</span>
+                            </div>
+                        </div>
+                        <div class="email-content">
+                            <h4>Email Content:</h4>
+                            <div class="content-preview" id="emailContentPreview">
+                                <p>Dear Customer,</p>
+                                <p>Your account requires immediate verification. Please click the link below to verify your account within 24 hours or your account will be suspended.</p>
+                                <p><strong style="color: red;">⚠️ WARNING: This appears to be a phishing attempt. Suspicious links detected.</strong></p>
+                                <p>Do not click any links in this email.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="modal-btn release-modal-btn">
+                            <i class="fas fa-unlock"></i>
+                            Release Email
+                        </button>
+                        <button class="modal-btn delete-modal-btn">
+                            <i class="fas fa-trash"></i>
+                            Delete Email
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

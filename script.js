@@ -574,7 +574,7 @@ function initializeEventListeners() {
     initializeNotificationDropdown();
 }
 
-// Enhanced navigation functionality
+// Enhanced navigation functionality - COMPLETE VERSION
 function initializeNavigation() {
     const navItems = document.querySelectorAll('.nav-item');
     
@@ -583,6 +583,7 @@ function initializeNavigation() {
             e.preventDefault();
             
             const page = this.getAttribute('data-page');
+            console.log(`🧭 Clicked navigation: ${page}`);
             
             // Remove active class from all items
             navItems.forEach(navItem => {
@@ -592,19 +593,64 @@ function initializeNavigation() {
             // Add active class to clicked item
             this.classList.add('active');
             
-            // Add visual feedback
-            this.style.transform = 'translateX(12px)';
-            setTimeout(() => {
-                this.style.transform = '';
-            }, 200);
-            
-            console.log(`🧭 Navigation: ${page}`);
-            
-            // Here you could implement actual page routing
+            // Handle page navigation
             handlePageNavigation(page);
         });
     });
 }
+
+// Fixed Page Navigation Handler
+function handlePageNavigation(page) {
+    console.log(`📄 Navigating to: ${page}`);
+    
+    // Get all page contents
+    const mainContent = document.querySelector('.main-content');
+    const quarantineContent = document.querySelector('.quarantine-content');
+    
+    // Hide all pages first
+    if (mainContent) {
+        mainContent.style.display = 'none';
+        mainContent.classList.remove('active');
+    }
+    if (quarantineContent) {
+        quarantineContent.style.display = 'none';
+        quarantineContent.classList.remove('active');
+    }
+    
+    // Show appropriate page
+    switch(page) {
+        case 'dashboard':
+            if (mainContent) {
+                mainContent.style.display = 'block';
+                mainContent.classList.add('active');
+            }
+            console.log('✅ Dashboard shown');
+            break;
+            
+        case 'quarantine':
+            if (quarantineContent) {
+                quarantineContent.style.display = 'block';
+                quarantineContent.classList.add('active');
+                
+                // Initialize quarantine functionality
+                setTimeout(() => {
+                    initializeQuarantinePage();
+                }, 200);
+            }
+            console.log('✅ Quarantine page shown');
+            break;
+            
+        default:
+            // Fallback to dashboard
+            if (mainContent) {
+                mainContent.style.display = 'block';
+                mainContent.classList.add('active');
+            }
+            showNotification(`${page} page coming soon!`, 'info');
+            break;
+    }
+}
+
 
 // Update the navigation function to handle quarantine page
 function handlePageNavigation(page) {
@@ -2436,3 +2482,354 @@ document.addEventListener('DOMContentLoaded', function() {
         hideLoadingOverlay();
     }, 500);
 });
+
+// QUARANTINE PAGE FUNCTIONALITY - COMPLETE
+function initializeQuarantinePage() {
+    console.log('🛡️ Initializing quarantine page...');
+    
+    try {
+        initializeQuarantineFilters();
+        initializeQuarantineTable();
+        initializeEmailPreview();
+        initializeBulkActions();
+        
+        console.log('✅ Quarantine page initialized successfully');
+    } catch (error) {
+        console.error('❌ Error initializing quarantine page:', error);
+    }
+}
+
+// Quarantine Filters
+function initializeQuarantineFilters() {
+    const filterTabs = document.querySelectorAll('.filter-tab');
+    const quarantineRows = document.querySelectorAll('.quarantine-row');
+    
+    console.log(`📋 Found ${filterTabs.length} filter tabs and ${quarantineRows.length} quarantine rows`);
+    
+    filterTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const filter = this.getAttribute('data-filter');
+            console.log(`🔍 Filtering by: ${filter}`);
+            
+            // Update active tab
+            filterTabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Filter rows
+            quarantineRows.forEach(row => {
+                const risk = row.getAttribute('data-risk');
+                if (filter === 'all' || risk === filter) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    });
+    
+    // Search functionality
+    const searchInput = document.querySelector('.quarantine-filters .search-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+            console.log(`🔍 Searching for: ${query}`);
+            
+            quarantineRows.forEach(row => {
+                const sender = row.querySelector('.sender-name')?.textContent.toLowerCase() || '';
+                const subject = row.querySelector('.subject-text')?.textContent.toLowerCase() || '';
+                
+                if (sender.includes(query) || subject.includes(query) || query === '') {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+}
+
+// Quarantine Table
+function initializeQuarantineTable() {
+    // Select all checkbox
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+    
+    console.log(`☑️ Found select all checkbox: ${!!selectAllCheckbox}, row checkboxes: ${rowCheckboxes.length}`);
+    
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            console.log(`☑️ Select all toggled: ${this.checked}`);
+            rowCheckboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+            updateBulkActionButtons();
+        });
+    }
+    
+    // Individual checkboxes
+    rowCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            updateBulkActionButtons();
+            
+            const checkedCount = document.querySelectorAll('.row-checkbox:checked').length;
+            const totalCount = rowCheckboxes.length;
+            
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = checkedCount === totalCount;
+                selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < totalCount;
+            }
+        });
+    });
+    
+    // Action buttons
+    document.querySelectorAll('.preview-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const row = this.closest('.quarantine-row');
+            showEmailPreview(row);
+        });
+    });
+    
+    document.querySelectorAll('.release-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const row = this.closest('.quarantine-row');
+            releaseEmail(row);
+        });
+    });
+    
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const row = this.closest('.quarantine-row');
+            deleteEmail(row);
+        });
+    });
+    
+    console.log('✅ Quarantine table initialized with all event listeners');
+}
+
+// Email Preview Modal
+function initializeEmailPreview() {
+    const modal = document.getElementById('emailPreviewModal');
+    const overlay = modal?.querySelector('.modal-overlay');
+    
+    if (overlay) {
+        overlay.addEventListener('click', closeEmailPreview);
+    }
+    
+    // Modal buttons
+    const releaseModalBtn = document.querySelector('.release-modal-btn');
+    const deleteModalBtn = document.querySelector('.delete-modal-btn');
+    
+    if (releaseModalBtn) {
+        releaseModalBtn.addEventListener('click', function() {
+            console.log('📧 Releasing email from modal...');
+            showNotification('Email released successfully!', 'success');
+            closeEmailPreview();
+        });
+    }
+    
+    if (deleteModalBtn) {
+        deleteModalBtn.addEventListener('click', function() {
+            console.log('🗑️ Deleting email from modal...');
+            showNotification('Email deleted successfully!', 'success');
+            closeEmailPreview();
+        });
+    }
+}
+
+// Bulk Actions
+function initializeBulkActions() {
+    const bulkReleaseBtn = document.querySelector('.bulk-release');
+    const bulkDeleteBtn = document.querySelector('.bulk-delete');
+    
+    if (bulkReleaseBtn) {
+        bulkReleaseBtn.addEventListener('click', function() {
+            const checkedEmails = document.querySelectorAll('.row-checkbox:checked');
+            console.log(`📧 Bulk release clicked, ${checkedEmails.length} emails selected`);
+            
+            if (checkedEmails.length === 0) {
+                showNotification('Please select emails to release', 'warning');
+                return;
+            }
+            
+            showNotification(`${checkedEmails.length} emails released successfully!`, 'success');
+            
+            checkedEmails.forEach(checkbox => {
+                const row = checkbox.closest('.quarantine-row');
+                row.style.animation = 'fadeOut 0.3s ease';
+                setTimeout(() => row.remove(), 300);
+            });
+            
+            updateEmailCounts();
+        });
+    }
+    
+    if (bulkDeleteBtn) {
+        bulkDeleteBtn.addEventListener('click', function() {
+            const checkedEmails = document.querySelectorAll('.row-checkbox:checked');
+            console.log(`🗑️ Bulk delete clicked, ${checkedEmails.length} emails selected`);
+            
+            if (checkedEmails.length === 0) {
+                showNotification('Please select emails to delete', 'warning');
+                return;
+            }
+            
+            if (confirm(`Are you sure you want to delete ${checkedEmails.length} emails? This action cannot be undone.`)) {
+                showNotification(`${checkedEmails.length} emails deleted successfully!`, 'success');
+                
+                checkedEmails.forEach(checkbox => {
+                    const row = checkbox.closest('.quarantine-row');
+                    row.style.animation = 'fadeOut 0.3s ease';
+                    setTimeout(() => row.remove(), 300);
+                });
+                
+                updateEmailCounts();
+            }
+        });
+    }
+}
+
+// Show Email Preview
+function showEmailPreview(row) {
+    const modal = document.getElementById('emailPreviewModal');
+    if (!modal) {
+        console.error('❌ Email preview modal not found');
+        return;
+    }
+    
+    // Extract data from row
+    const sender = row.querySelector('.sender-name')?.textContent || 'Unknown';
+    const subject = row.querySelector('.subject-text')?.textContent || 'No Subject';
+    const dateMain = row.querySelector('.date-main')?.textContent || '';
+    const dateTime = row.querySelector('.date-time')?.textContent || '';
+    const risk = row.querySelector('.risk-badge')?.textContent.trim() || 'Unknown';
+    
+    // Update modal content
+    const previewSender = document.getElementById('previewSender');
+    const previewSubject = document.getElementById('previewSubject');
+    const previewDate = document.getElementById('previewDate');
+    const previewRisk = document.getElementById('previewRisk');
+    
+    if (previewSender) previewSender.textContent = sender;
+    if (previewSubject) previewSubject.textContent = subject;
+    if (previewDate) previewDate.textContent = `${dateMain} ${dateTime}`;
+    if (previewRisk) previewRisk.textContent = risk;
+    
+    // Show modal
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    
+    console.log('👁️ Email preview shown for:', subject);
+}
+
+// Close Email Preview
+function closeEmailPreview() {
+    const modal = document.getElementById('emailPreviewModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+}
+
+// Release Email
+function releaseEmail(row) {
+    const subject = row.querySelector('.subject-text')?.textContent || 'Email';
+    console.log('📧 Releasing email:', subject);
+    
+    showNotification('Email released successfully!', 'success');
+    
+    row.style.animation = 'fadeOut 0.3s ease';
+    setTimeout(() => {
+        row.remove();
+        updateEmailCounts();
+    }, 300);
+}
+
+// Delete Email
+function deleteEmail(row) {
+    const subject = row.querySelector('.subject-text')?.textContent || 'Email';
+    
+    if (confirm('Are you sure you want to delete this email? This action cannot be undone.')) {
+        console.log('🗑️ Deleting email:', subject);
+        
+        showNotification('Email deleted successfully!', 'success');
+        
+        row.style.animation = 'fadeOut 0.3s ease';
+        setTimeout(() => {
+            row.remove();
+            updateEmailCounts();
+        }, 300);
+    }
+}
+
+// Update Bulk Action Buttons
+function updateBulkActionButtons() {
+    const checkedCount = document.querySelectorAll('.row-checkbox:checked').length;
+    const bulkActions = document.querySelectorAll('.bulk-release, .bulk-delete');
+    
+    bulkActions.forEach(btn => {
+        if (checkedCount > 0) {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btn.style.cursor = 'pointer';
+        } else {
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+            btn.style.cursor = 'not-allowed';
+        }
+    });
+}
+
+// Update Email Counts
+function updateEmailCounts() {
+    const totalEmails = document.querySelectorAll('.quarantine-row').length;
+    const highRiskEmails = document.querySelectorAll('.quarantine-row.high-risk').length;
+    const mediumRiskEmails = document.querySelectorAll('.quarantine-row.medium-risk').length;
+    
+    // Update tab counts
+    const allTabCount = document.querySelector('[data-filter="all"] .tab-count');
+    const highTabCount = document.querySelector('[data-filter="high"] .tab-count');
+    const mediumTabCount = document.querySelector('[data-filter="medium"] .tab-count');
+    
+    if (allTabCount) allTabCount.textContent = `(${totalEmails})`;
+    if (highTabCount) highTabCount.textContent = `(${highRiskEmails})`;
+    if (mediumTabCount) mediumTabCount.textContent = `(${mediumRiskEmails})`;
+    
+    // Update header stats
+    const statNumbers = document.querySelectorAll('.quarantine-header .quick-stat .stat-number');
+    if (statNumbers[0]) statNumbers[0].textContent = totalEmails;
+    if (statNumbers[1]) statNumbers[1].textContent = highRiskEmails;
+    if (statNumbers[2]) statNumbers[2].textContent = mediumRiskEmails;
+    
+    console.log(`📊 Updated counts - Total: ${totalEmails}, High: ${highRiskEmails}, Medium: ${mediumRiskEmails}`);
+}
+
+// Make functions globally available
+window.closeEmailPreview = closeEmailPreview;
+window.showEmailPreview = showEmailPreview;
+window.releaseEmail = releaseEmail;
+window.deleteEmail = deleteEmail;
+
+
+// TEMPORARY DEBUG - Add this to test
+function debugQuarantine() {
+    console.log('🔍 QUARANTINE DEBUG:');
+    console.log('- Quarantine content element:', document.querySelector('.quarantine-content'));
+    console.log('- Main content element:', document.querySelector('.main-content'));
+    console.log('- Nav items with data-page:', document.querySelectorAll('[data-page]').length);
+    console.log('- Quarantine nav item:', document.querySelector('[data-page="quarantine"]'));
+    console.log('- Filter tabs:', document.querySelectorAll('.filter-tab').length);
+    console.log('- Quarantine rows:', document.querySelectorAll('.quarantine-row').length);
+    
+    // Test navigation manually
+    const quarantineNav = document.querySelector('[data-page="quarantine"]');
+    if (quarantineNav) {
+        console.log('✅ Quarantine nav found, testing click...');
+        quarantineNav.click();
+    }
+}
+
+// Call this in console to test
+window.debugQuarantine = debugQuarantine;

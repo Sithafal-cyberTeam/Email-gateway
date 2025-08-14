@@ -65,27 +65,40 @@
                     <span class="profile-name">Michael Krist</span>
                     <span class="profile-role">Security Admin</span>
                 </div>
-                <div class="notification-dropdown">
-                    <div class="notification-badge">
-                        <i class="fas fa-bell"></i>
-                        <span class="badge pulse">3</span>
-                    </div>
-                    <div class="dropdown-menu">
-                        <div class="dropdown-header">Notifications</div>
-                        <div class="notification-item">
-                            <i class="fas fa-exclamation-triangle text-danger"></i>
-                            <span>High risk threat detected</span>
-                        </div>
-                        <div class="notification-item">
-                            <i class="fas fa-info-circle text-info"></i>
-                            <span>System update available</span>
-                        </div>
-                        <div class="notification-item">
-                            <i class="fas fa-check-circle text-success"></i>
-                            <span>Scan completed successfully</span>
-                        </div>
-                    </div>
+                <div class="notification-dropdown" id="notificationDropdown">
+    <div class="notification-badge">
+        <i class="fas fa-bell"></i>
+        <span class="badge pulse">3</span>
+    </div>
+    <div class="dropdown-menu">
+        <div class="dropdown-content">
+            <div class="dropdown-header">
+                Notifications
+            </div>
+            <div class="notification-list">
+                <div class="notification-item">
+                    <i class="fas fa-exclamation-triangle text-danger"></i>
+                    <span>High risk threat detected from suspicious email sender</span>
                 </div>
+                <div class="notification-item">
+                    <i class="fas fa-info-circle text-info"></i>
+                    <span>System security update completed successfully</span>
+                </div>
+                <div class="notification-item">
+                    <i class="fas fa-check-circle text-success"></i>
+                    <span>Daily security scan completed - no threats found</span>
+                </div>
+            </div>
+            <div class="dropdown-footer">
+                <a href="#" class="view-all-notifications">View All</a>
+                <button class="mark-all-read">Mark All Read</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
             </div>
         </aside>
 
